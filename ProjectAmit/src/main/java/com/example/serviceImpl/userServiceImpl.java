@@ -3,12 +3,15 @@ package com.example.serviceImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Service;
 
+import com.example.constant.MonthCode;
 import com.example.constant.ResponseCode;
 import com.example.service.userService;
 import com.example.util.ValErrores;
+import com.example.util.Month;
 import com.example.util.Output;
 import com.example.util.Users;
 @Service
@@ -17,6 +20,7 @@ public class userServiceImpl implements userService {
 	public static final  HashMap<Integer, Users> map = new HashMap<>(); 
 	public static final  HashMap<String,Integer> emailMap = new HashMap<>();
 	public static final  HashMap<Integer,Users> unactiveUser = new HashMap<>();
+	public static final  HashMap<String,Users> monthUsers = new HashMap<>();
 	
 	public static  Integer userId=new Integer(0001);
 
@@ -27,6 +31,28 @@ public class userServiceImpl implements userService {
 		List<Object> outValueArray = new ArrayList<>();
 		boolean valueChecking=false;
 		
+		String date=ms.getBirthDate();
+		
+		if((date.matches("^((0|1)\\d{1})-([aA-zZ]{3})-((19|20)\\d{2})"))!=true){
+			out.setResMsg(ResponseCode.DATE_TIME.getDescription());
+			valErrors.setCode(ResponseCode.DATE_TIME.getCode());
+			outValueArray.add(valErrors);
+			out.setValErrors(outValueArray);
+			return out;
+		}
+		
+		String[] dateMonth=date.split("-");
+		boolean bool =Stream.of(MonthCode.values()).anyMatch(e -> e.getMonth().equalsIgnoreCase(dateMonth[1]));
+		System.err.println(dateMonth[1]);
+		if(bool!=true)
+		{
+			out.setResMsg(ResponseCode.MONTH.getDescription());
+			valErrors.setCode(ResponseCode.MONTH.getCode());
+			outValueArray.add(valErrors);
+			out.setValErrors(outValueArray);
+			return out;
+		}
+		String month=dateMonth[1];
 		if(emailMap.containsKey(ms.getEmail()))
 		{
 			out.setResMsg(ResponseCode.EMIAL_ID_EXIST.getDescription());
@@ -34,9 +60,9 @@ public class userServiceImpl implements userService {
 			valErrors.setCode(ResponseCode.EMIAL_ID_EXIST.getCode());
 			outValueArray.add(valErrors);
 			out.setValErrors(outValueArray);
-
 			return out;
-		}else
+		}
+		else
 		{
 
 			while(valueChecking!=true)
@@ -51,9 +77,11 @@ public class userServiceImpl implements userService {
 				}
 			}
 		}
+		
 			ms.setId(userId);
 			map.put(userId , ms);
 			emailMap.put(ms.getEmail(),userId);
+			monthUsers.put(month, ms);
 		
 		out.setResMsg(ResponseCode.NEW_USER_CREATED.getDescription());
 		out.setUserId(userId.toString());
@@ -119,6 +147,17 @@ public class userServiceImpl implements userService {
 			return out;
 		}
 
+	}
+	@Override
+	public HashMap<String,Users> getMonthDate(Month mo) {
+		Output out= new Output();
+		ValErrores valErrors = new ValErrores();
+		List<Object> outValueArray = new ArrayList<>();
+		boolean b=Stream.of(MonthCode.values()).anyMatch(e -> e.getMonth().equals(mo.getMonth()));
+		//out.setValErrors(monthUsers);
+		
+
+		return monthUsers;
 	}
 }
 

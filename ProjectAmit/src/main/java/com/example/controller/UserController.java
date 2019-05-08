@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.constant.MonthCode;
 import com.example.service.userService;
+import com.example.util.Month;
 import com.example.util.Output;
 import com.example.util.Users;
 
@@ -23,6 +26,7 @@ public class UserController {
 	@ResponseBody
 	public ResponseEntity<?> addPostData(@RequestBody Users input) {
 
+		
 		Output out = userService.addInfoDate(input);
 		return ResponseEntity.ok(out);
 		
@@ -50,6 +54,13 @@ public class UserController {
 		Output out = userService.delete(input);
 		
 		return ResponseEntity.ok(out);
+		
+	}
+	@GetMapping("/getMonth")
+	public ResponseEntity<?> getMonthData(@RequestBody Month input) {
+		
+		HashMap<String,Users> mer= userService.getMonthDate(input);
+		return ResponseEntity.ok(mer);
 		
 	}
 }
